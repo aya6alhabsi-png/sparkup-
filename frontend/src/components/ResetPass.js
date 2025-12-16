@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from "react";
-import {Container, Row, Col,Card,CardBody,Form,FormGroup,Input,Button,Alert,Modal,ModalHeader,ModalBody,ModalFooter,Label,} from "reactstrap";
+import {Container,Row,Col,Card,CardBody,Form,FormGroup,Input,Button,Alert,Modal,ModalHeader,ModalBody,ModalFooter,Label} from "reactstrap";
 import "bootstrap/dist/css/bootstrap.min.css";
 import { useSelector, useDispatch } from "react-redux";
 import { useNavigate } from "react-router-dom";
@@ -10,33 +10,24 @@ import { logout } from "../store/authSlice";
 
 const API_URL = "http://localhost:5000";
 
-
 const validateNewPassword = (pwd) => {
-  if (pwd.length < 8) {
-    return "Password must be at least 8 characters";
-  }
-  if (!/[A-Z]/.test(pwd)) {
+  if (pwd.length < 8) return "Password must be at least 8 characters";
+  if (!/[A-Z]/.test(pwd))
     return "Password must contain at least one uppercase letter";
-  }
-  if (!/[a-z]/.test(pwd)) {
+  if (!/[a-z]/.test(pwd))
     return "Password must contain at least one lowercase letter";
-  }
-  if (!/\d/.test(pwd)) {
+  if (!/\d/.test(pwd))
     return "Password must contain at least one number";
-  }
-  if (!/[@$!%*?&#^()_\-+=]/.test(pwd)) {
+  if (!/[@$!%*?&#^()_\-+=]/.test(pwd))
     return "Password must contain at least one special character (@$!%*?&#^()_-+=)";
-  }
   return "";
 };
-
 
 function ResetPass() {
   const { user } = useSelector((state) => state.auth);
   const [currentPassword, setCurrentPassword] = useState("");
   const [newPassword, setNewPassword] = useState("");
   const [confirmNewPassword, setConfirmNewPassword] = useState("");
-
   const [error, setError] = useState("");
   const [info, setInfo] = useState("");
   const [loading, setLoading] = useState(false);
@@ -44,11 +35,8 @@ function ResetPass() {
   const navigate = useNavigate();
   const dispatch = useDispatch();
 
-  
   useEffect(() => {
-    if (!user) {
-      navigate("/", { replace: true });
-    }
+    if (!user) navigate("/", { replace: true });
   }, [user, navigate]);
 
   if (!user) return null;
@@ -60,6 +48,11 @@ function ResetPass() {
 
     if (!currentPassword || !newPassword || !confirmNewPassword) {
       setError("All fields are required");
+      return;
+    }
+
+    if (currentPassword === newPassword) {
+      setError("New password must be different from the current password.");
       return;
     }
 
@@ -88,10 +81,10 @@ function ResetPass() {
         setInfo("Password updated successfully. You will be logged out...");
         setTimeout(() => {
           dispatch(logout());
-          navigate("/", { replace: true }); 
+          navigate("/", { replace: true });
         }, 1200);
       }
-    } catch (err) {
+    } catch {
       setError("Server error changing password. Please try again.");
     } finally {
       setLoading(false);
@@ -99,29 +92,15 @@ function ResetPass() {
   };
 
   return (
-    <div
-      style={{ minHeight: "100vh", backgroundColor: "#eaf4ff" }}
-      className="d-flex align-items-center"
-    >
+    <div style={{ minHeight: "100vh", backgroundColor: "#eaf4ff" }} className="d-flex align-items-center">
       <Container>
         <Row className="justify-content-center">
           <Col md="6" lg="4">
             <Card className="shadow-lg border-0">
               <CardBody className="p-4 p-md-5">
                 <div className="d-flex align-items-center mb-4">
-                  <img
-                    src={logo}
-                    alt="SparkUp logo"
-                    style={{ height: 40, width: 40, borderRadius: "50%" }}
-                    className="me-2"
-                  />
-                  <span
-                    style={{
-                      fontSize: "1.4rem",
-                      fontWeight: 700,
-                      color: "#1a4d80",
-                    }}
-                  >
+                  <img src={logo} alt="SparkUp logo" style={{ height: 40, width: 40, borderRadius: "50%" }} className="me-2" />
+                  <span style={{ fontSize: "1.4rem", fontWeight: 700, color: "#1a4d80" }}>
                     Spark<span style={{ color: "#ff9f43" }}>Up</span>
                   </span>
                 </div>
@@ -129,58 +108,26 @@ function ResetPass() {
                 <h3 className="fw-bold mb-2" style={{ color: "#1a4d80" }}>
                   Reset Password
                 </h3>
-                <p className="text-muted small mb-3">
-                  Logged in as <strong>{user.email}</strong>
-                </p>
 
-                {error && (
-                  <Alert color="danger" className="py-2">
-                    {error}
-                  </Alert>
-                )}
-                {info && (
-                  <Alert color="success" className="py-2">
-                    {info}
-                  </Alert>
-                )}
+                {error && <Alert color="danger">{error}</Alert>}
+                {info && <Alert color="success">{info}</Alert>}
 
                 <Form onSubmit={handleSubmit}>
                   <FormGroup className="mb-3">
-                    <Input
-                      type="password"
-                      placeholder="Current password"
-                      value={currentPassword}
-                      onChange={(e) => setCurrentPassword(e.target.value)}
-                    />
+                    <Input type="password" placeholder="Current password" value={currentPassword} onChange={(e) => setCurrentPassword(e.target.value)} />
                   </FormGroup>
 
                   <FormGroup className="mb-3">
-                    <Input
-                      type="password"
-                      placeholder="New password"
-                      value={newPassword}
-                      onChange={(e) => setNewPassword(e.target.value)}
-                    />
+                    <Input type="password" placeholder="New password" value={newPassword} onChange={(e) => setNewPassword(e.target.value)} />
                   </FormGroup>
 
                   <FormGroup className="mb-4">
-                    <Input
-                      type="password"
-                      placeholder="Confirm new password"
-                      value={confirmNewPassword}
-                      onChange={(e) => setConfirmNewPassword(e.target.value)}
-                    />
+                    <Input type="password" placeholder="Confirm new password" value={confirmNewPassword} onChange={(e) => setConfirmNewPassword(e.target.value)} />
                   </FormGroup>
 
-                  <div className="d-grid">
-                    <Button
-                      type="submit"
-                      style={{ backgroundColor: "#1a73e8", border: "none" }}
-                      disabled={loading}
-                    >
-                      {loading ? "Saving..." : "Change Password"}
-                    </Button>
-                  </div>
+                  <Button type="submit" style={{ backgroundColor: "#1a73e8", border: "none" }} disabled={loading} block>
+                    {loading ? "Saving..." : "Change Password"}
+                  </Button>
                 </Form>
               </CardBody>
             </Card>
@@ -192,13 +139,12 @@ function ResetPass() {
 }
 
 
+
 export function ResetPasswordModal({ isOpen, toggle }) {
   const { user } = useSelector((state) => state.auth);
-
   const [currentPassword, setCurrentPassword] = useState("");
   const [newPassword, setNewPassword] = useState("");
   const [confirmNewPassword, setConfirmNewPassword] = useState("");
-
   const [error, setError] = useState("");
   const [info, setInfo] = useState("");
   const [loading, setLoading] = useState(false);
@@ -215,6 +161,12 @@ export function ResetPasswordModal({ isOpen, toggle }) {
 
     if (!currentPassword || !newPassword || !confirmNewPassword) {
       setError("All fields are required.");
+      return;
+    }
+
+    //SAME VALIDATION FOR MODAL
+    if (currentPassword === newPassword) {
+      setError("New password must be different from the current password.");
       return;
     }
 
@@ -247,7 +199,7 @@ export function ResetPasswordModal({ isOpen, toggle }) {
           navigate("/", { replace: true });
         }, 1200);
       }
-    } catch (err) {
+    } catch {
       setError("Server error changing password. Please try again.");
     } finally {
       setLoading(false);
@@ -257,65 +209,32 @@ export function ResetPasswordModal({ isOpen, toggle }) {
   return (
     <Modal isOpen={isOpen} toggle={toggle} backdrop="static" keyboard centered>
       <ModalHeader toggle={toggle}>
-        <FaLock className="me-2" />
-        Reset Password
+        <FaLock className="me-2" /> Reset Password
       </ModalHeader>
       <Form onSubmit={handleSubmit}>
         <ModalBody>
-          <p className="small text-muted mb-3">
-            Logged in as <strong>{user.email}</strong>
-          </p>
+          {error && <Alert color="danger">{error}</Alert>}
+          {info && <Alert color="success">{info}</Alert>}
 
-          {error && (
-            <Alert color="danger" className="py-2">
-              {error}
-            </Alert>
-          )}
-          {info && (
-            <Alert color="success" className="py-2">
-              {info}
-            </Alert>
-          )}
-
-          <FormGroup className="mb-3">
-            <Label className="small fw-semibold">Current Password</Label>
-            <Input
-              type="password"
-              placeholder="Current password"
-              value={currentPassword}
-              onChange={(e) => setCurrentPassword(e.target.value)}
-            />
+          <FormGroup>
+            <Label>Current Password</Label>
+            <Input type="password" value={currentPassword} onChange={(e) => setCurrentPassword(e.target.value)} />
           </FormGroup>
 
-          <FormGroup className="mb-3">
-            <Label className="small fw-semibold">New Password</Label>
-            <Input
-              type="password"
-              placeholder="New password"
-              value={newPassword}
-              onChange={(e) => setNewPassword(e.target.value)}
-            />
+          <FormGroup>
+            <Label>New Password</Label>
+            <Input type="password" value={newPassword} onChange={(e) => setNewPassword(e.target.value)} />
           </FormGroup>
 
-          <FormGroup className="mb-0">
-            <Label className="small fw-semibold">Confirm New Password</Label>
-            <Input
-              type="password"
-              placeholder="Confirm new password"
-              value={confirmNewPassword}
-              onChange={(e) => setConfirmNewPassword(e.target.value)}
-            />
+          <FormGroup>
+            <Label>Confirm New Password</Label>
+            <Input type="password" value={confirmNewPassword} onChange={(e) => setConfirmNewPassword(e.target.value)} />
           </FormGroup>
         </ModalBody>
+
         <ModalFooter>
-          <Button color="secondary" onClick={toggle} disabled={loading}>
-            Cancel
-          </Button>
-          <Button
-            type="submit"
-            style={{ backgroundColor: "#1a73e8", border: "none" }}
-            disabled={loading}
-          >
+          <Button color="secondary" onClick={toggle}>Cancel</Button>
+          <Button type="submit" style={{ backgroundColor: "#1a73e8", border: "none" }} disabled={loading}>
             {loading ? "Saving..." : "Change Password"}
           </Button>
         </ModalFooter>
