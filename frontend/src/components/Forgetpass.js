@@ -19,26 +19,46 @@ function Forgetpass() {
 
   const navigate = useNavigate();
 
-  
+  //send code (ONLY if email exists)
   const handleEmailSubmit = async (e) => {
     e.preventDefault();
     setError("");
     setInfo("");
+
+    const cleanEmail = email.trim().toLowerCase();
+
+    // basic frontend validation
+    if (!cleanEmail) {
+      setError("Email is required.");
+      return;
+    }
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    if (!emailRegex.test(cleanEmail)) {
+      setError("Please enter a valid email.");
+      return;
+    }
+
     setLoading(true);
 
     try {
       const res = await axios.post(`${API_URL}/auth/forgot-password`, {
-        email, //only email, no role
+        email: cleanEmail,
       });
 
-      setInfo(
-        res.data?.msg ||
-          "If this email exists, a confirmation code has been sent."
-      );
+      // move to step 2 ONLY if success true
+      if (!res.data?.success) {
+        setError(res.data?.msg || "Email does not exist");
+        setLoading(false);
+        return;
+      }
+
+      setInfo(res.data?.msg || "Confirmation code sent.");
       setStep(2);
     } catch (err) {
-      console.error("Forgot-password error:", err.response?.data || err.message);
-      if (err.response?.data?.msg) {
+      //show exact backend error
+      if (err.response?.status === 404) {
+        setError(err.response?.data?.msg || "Email does not exist");
+      } else if (err.response?.data?.msg) {
         setError(err.response.data.msg);
       } else {
         setError("Failed to send confirmation code. Please try again.");
@@ -48,7 +68,7 @@ function Forgetpass() {
     }
   };
 
-  
+  //verify code
   const handleCodeSubmit = async (e) => {
     e.preventDefault();
     setError("");
@@ -63,8 +83,8 @@ function Forgetpass() {
 
     try {
       const res = await axios.post(`${API_URL}/auth/verify-code`, {
-        email,
-        code, //only email + code
+        email: email.trim().toLowerCase(),
+        code: code.trim(),
       });
 
       if (!res.data.success) {
@@ -75,13 +95,13 @@ function Forgetpass() {
       }
     } catch (err) {
       console.error("Verify-code error:", err.response?.data || err.message);
-      setError("Failed to verify code. Please try again.");
+      setError(err.response?.data?.msg || "Failed to verify code. Please try again.");
     } finally {
       setLoading(false);
     }
   };
 
-  //change pass+  based on role
+  //reset password
   const handlePasswordSubmit = async (e) => {
     e.preventDefault();
     setError("");
@@ -96,9 +116,9 @@ function Forgetpass() {
 
     try {
       const res = await axios.post(`${API_URL}/auth/reset-password`, {
-        email,
-        code,
-        newPassword, //only email + code + newPass
+        email: email.trim().toLowerCase(),
+        code: code.trim(),
+        newPassword,
       });
 
       if (!res.data.success) {
@@ -107,18 +127,16 @@ function Forgetpass() {
         setInfo("Password changed successfully! Redirecting...");
 
         setTimeout(() => {
-          // If backend say role == admin → go to --> adminlogin
           if (res.data.role === "admin") {
             navigate("/adminlogin");
           } else {
-            // innovators + funders + any others → /login
             navigate("/login");
           }
         }, 1000);
       }
     } catch (err) {
       console.error("Reset-password error:", err.response?.data || err.message);
-      setError("Failed to reset password. Please try again.");
+      setError(err.response?.data?.msg || "Failed to reset password. Please try again.");
     } finally {
       setLoading(false);
     }
@@ -126,7 +144,6 @@ function Forgetpass() {
 
   const renderStep = () => {
     if (step === 1) {
-    
       return (
         <Form onSubmit={handleEmailSubmit}>
           <FormGroup className="mb-3">
@@ -138,8 +155,6 @@ function Forgetpass() {
               required
             />
           </FormGroup>
-
-        
 
           <div className="d-grid">
             <Button
@@ -155,7 +170,6 @@ function Forgetpass() {
     }
 
     if (step === 2) {
-     
       return (
         <Form onSubmit={handleCodeSubmit}>
           <p className="small text-muted mb-3">
@@ -183,7 +197,6 @@ function Forgetpass() {
       );
     }
 
-    
     return (
       <Form onSubmit={handlePasswordSubmit}>
         <p className="small text-muted mb-3">
@@ -230,18 +243,8 @@ function Forgetpass() {
           <Col md="6" lg="4">
             <Card className="shadow-lg border-0">
               <CardBody className="p-4 p-md-5">
-              
                 <div className="d-flex align-items-center mb-4">
-                 <img src={logo}alt="SparkUp"style={{height: 150,width: 200}} />
-                  <span
-                    style={{
-                      fontSize: "1.4rem",
-                      fontWeight: 700,
-                      color: "#1a4d80",
-                    }}
-                  >
-                   
-                  </span>
+                  <img src={logo} alt="SparkUp" style={{ height: 150, width: 200 }} />
                 </div>
 
                 <h3 className="fw-bold mb-2" style={{ color: "#1a4d80" }}>
