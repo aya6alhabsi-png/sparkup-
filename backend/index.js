@@ -15,7 +15,7 @@ const app = express();
 app.use(cors({ origin: "http://localhost:3000", credentials: true }));
 app.use(express.json());
 
-//connection 
+//connection
 mongoose
   .connect(process.env.MONGO_URL)
   .then(() => console.log("MongoDB Connected"))
@@ -86,7 +86,6 @@ app.post("/userRegister", async (req, res) => {
   }
 });
 
-
 app.post("/adminRegister", async (req, res) => {
   try {
     const { name, email, password } = req.body;
@@ -122,7 +121,6 @@ app.post("/adminRegister", async (req, res) => {
     return res.status(500).json({ msg: "Server Error" });
   }
 });
-
 
 app.post("/userLogin", async (req, res) => {
   try {
@@ -193,12 +191,10 @@ app.post("/userLogin", async (req, res) => {
   }
 });
 
-
-
-//forget pass
+//FORGET PASSWORD (UPDATED VALIDATION)
 app.post("/auth/forgot-password", async (req, res) => {
   try {
-    const { email } = req.body;
+    const email = (req.body.email || "").trim().toLowerCase();
 
     if (!email) {
       return res
@@ -206,26 +202,24 @@ app.post("/auth/forgot-password", async (req, res) => {
         .json({ success: false, msg: "Email is required" });
     }
 
-    console.log("🔥 FORGOT-PASSWORD called with email:", email);
+    console.log("FORGOT-PASSWORD called with email:", email);
 
-    
+    //search admin then user
     let account = await Admin.findOne({ email });
-
-   
     if (!account) {
       account = await User.findOne({ email });
     }
 
-    
+    // if email NOT found → return error + DO NOT send code
     if (!account) {
-      return res.json({
-        success: true,
-        msg: "If this email exists, a confirmation code was sent.",
-      });
+      return res
+        .status(404)
+        .json({ success: false, msg: "Email does not exist" });
     }
 
+    //if exists → generate + store + send
     const code = generateCode();
-    const expiry = new Date(Date.now() + 10 * 60 * 1000); //10 minut -->the code will expaier 
+    const expiry = new Date(Date.now() + 10 * 60 * 1000); // 10 min
 
     account.resetCode = code;
     account.resetCodeExpiry = expiry;
@@ -242,7 +236,7 @@ app.post("/auth/forgot-password", async (req, res) => {
 
     return res.json({
       success: true,
-      msg: "If this email exists, a confirmation code was sent.",
+      msg: "Confirmation code sent to your email.",
     });
   } catch (err) {
     console.error("Forgot password error:", err);
@@ -252,7 +246,7 @@ app.post("/auth/forgot-password", async (req, res) => {
   }
 });
 
-// varivecation 
+// varivecation
 app.post("/auth/verify-code", async (req, res) => {
   try {
     const { email, code } = req.body;
@@ -390,7 +384,6 @@ app.post("/auth/change-password", async (req, res) => {
   }
 });
 
-
 app.post("/resetPassword", async (req, res) => {
   try {
     const { email, newPassword } = req.body;
@@ -415,4 +408,4 @@ app.post("/resetPassword", async (req, res) => {
 });
 
 const PORT = process.env.PORT || 5000;
-app.listen(PORT, () => console.log(`🚀 Server running on port ${PORT}`));
+app.listen(PORT, () => console.log(`Server running on port ${PORT}`));
