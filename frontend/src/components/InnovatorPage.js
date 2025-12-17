@@ -38,29 +38,25 @@ function InnovatorPage() {
       key: "submitIdea",
       title: "Submit New Idea",
       text: "Add title, abstract, category, and IP declaration to safely submit your idea.",
-      icon: <FaLightbulb size={40} />,
       bg: "#123b73",
     },
     {
       key: "myIdeas",
       title: "My Ideas & Progress",
       text: "View all your ideas with status: Pending, In Review, Presented, Funded.",
-      icon: <FaClipboardList size={38} />,
       bg: "#133a63",
     },
     {
       key: "events",
       title: "Events & Hackathons",
       text: "Browse workshops, hackathons, and innovation programs and register easily.",
-      icon: <FaCalendarAlt size={40} />,
       bg: "#122f4c",
     },
    
     {
-      key: "myEvents",
+      key: "Events",
       title: "My Registered Events",
       text: "Keep track of the events you joined and certificates earned (future feature).",
-      icon: <FaCalendarAlt size={32} />,
       bg: "#12325b",
     },
   ];
