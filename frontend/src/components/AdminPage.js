@@ -1,3 +1,4 @@
+
 import React, { useState } from "react";
 import { useSelector, useDispatch } from "react-redux";
 import {Container,Row,Col,Card,CardBody,Button,Badge,Modal,ModalHeader,ModalBody,ModalFooter,} from "reactstrap";
@@ -38,42 +39,36 @@ function AdminPage() {
       key: "ideas",
       title: "Review Ideas",
       text: "Check new ideas, update status, and prepare them for funders.",
-      icon: <FaLightbulb size={40} />,
       bg: "#123b73",
     },
     {
       key: "events",
       title: "Events Management",
       text: "Create and manage workshops, hackathons, and demo days.",
-      icon: <FaCalendarCheck size={40} />,
       bg: "#133a63",
     },
     {
       key: "reports",
       title: "Report & Feedback",
       text: "View high-level reports and feedback from funders and innovators.",
-      icon: <FaClipboardList size={38} />,
       bg: "#122f4c",
     },
     {
       key: "users",
       title: "User Management",
       text: "Approve funders, add admins, manage reviewers and innovators.",
-      icon: <FaUsers size={36} />,
       bg: "#0f4c5c",
     },
     {
       key: "funding",
       title: "Funding Management",
       text: "Configure funding programs, criteria, and track funding cycles.",
-      icon: <FaMoneyCheckAlt size={36} />,
       bg: "#18485c",
     },
     {
       key: "certificates",
       title: "Certificates",
       text: "Issue digital certificates for events and completed ideas.",
-      icon: <FaCertificate size={36} />,
       bg: "#12325b",
     },
   ];
@@ -341,4 +336,3 @@ function AdminPage() {
 }
 
 export default AdminPage;
-
