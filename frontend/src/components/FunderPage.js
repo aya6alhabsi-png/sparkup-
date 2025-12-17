@@ -1,4 +1,4 @@
-// src/components/FunderPage.js
+
 import React, { useState } from "react";
 import {Container,Row,Col,Card,CardBody,Button,Badge,Modal,ModalHeader,ModalBody,ModalFooter,} from "reactstrap";
 import {FaUserCircle,FaEnvelope,FaPhone,FaKey,FaCalendarAlt,FaClipboardList,FaRobot,FaHandHoldingUsd,FaEdit,FaLanguage,FaMoon} from "react-icons/fa";
@@ -40,28 +40,24 @@ function FunderPage() {
       key: "ideasPresented",
       title: "Ideas Presented to Me",
       text: "View all admin-approved ideas mapped to you with summary and status.",
-      icon: <FaHandHoldingUsd size={40} />,
       bg: "#123b73",
     },
     {
       key: "updateStatus",
       title: "Update Idea Status",
       text: "Set ideas to Pending, In Progress, or Resolved and add internal notes.",
-      icon: <FaClipboardList size={38} />,
       bg: "#133a63",
     },
     {
       key: "reports",
       title: "Funder Reports",
       text: "See how many ideas you reviewed, approved, rejected, or kept in progress.",
-      icon: <FaClipboardList size={36} />,
       bg: "#122f4c",
     },
     {
       key: "events",
-      title: "Pitch & Demo Events",
+      title: "Events",
       text: "Browse pitch days, demo days, and investment-related events.",
-      icon: <FaCalendarAlt size={40} />,
       bg: "#0f4c5c",
     },
    
