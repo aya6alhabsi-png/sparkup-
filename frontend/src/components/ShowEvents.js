@@ -1,4 +1,4 @@
-import { Container, Button } from "reactstrap";
+import { Container} from "reactstrap";
 import { useNavigate } from "react-router-dom";
 
 export default function ShowEvents() {
@@ -15,12 +15,7 @@ export default function ShowEvents() {
          
         </p>
 
-        <Button
-          style={{ backgroundColor: "#1a73e8", border: "none", marginTop: 20 }}
-          onClick={() => navigate("/")}
-        >
-          Back to Home
-        </Button>
+        
       </Container>
     </div>
   );
