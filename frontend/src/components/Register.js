@@ -6,7 +6,7 @@ import {Container,Row,Col,Card,CardBody,Form,FormGroup,Input,Button, Spinner,Ale
 import "bootstrap/dist/css/bootstrap.min.css";
 import regFormValidationSchema from "../validation/regFormValidationSchema";
 import logo from "../image/logo.png";
-import illustration from "../image/home.png";
+import home from "../image/home.png";
  
 function Register() {
   const [name, setName] = useState("");
@@ -241,7 +241,7 @@ function Register() {
             className="d-none d-lg-flex align-items-center justify-content-center"
           >
             <img
-              src={illustration}
+              src={home}
               alt="Create account illustration"
               style={{ maxWidth: "100%", height: "auto" }}
             />
@@ -253,3 +253,4 @@ function Register() {
 }
  
 export default Register;
+
