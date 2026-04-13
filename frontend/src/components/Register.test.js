@@ -1,72 +1,157 @@
-import { render, screen, fireEvent as fire } from "@testing-library/react";
-import "@testing-library/jest-dom";
-import Register from "./Register";
+import React from 'react';
+import { render, screen, fireEvent, waitFor } from '@testing-library/react';
+import '@testing-library/jest-dom';
+import { MemoryRouter } from 'react-router-dom';
+import Register from '../components/Register';
 
-jest.mock("react-redux", () => {
-  const actual = jest.requireActual("react-redux");
-  return {
-    ...actual,
-    useSelector: (selectorFn) =>
-      selectorFn({
-        auth: { status: "idle", error: null },
-      }),
-    useDispatch: () => jest.fn(),
-  };
-});
+const mockDispatch = jest.fn();
+const mockNavigate = jest.fn();
+const mockUnwrap = jest.fn();
+const mockValidate = jest.fn();
 
+jest.mock('bootstrap/dist/css/bootstrap.min.css', () => ({}));
+jest.mock('../components/authElegant.css', () => ({}), { virtual: true });
+jest.mock('./authElegant.css', () => ({}), { virtual: true });
+jest.mock('../image/logo2.png', () => 'logo2.png');
+jest.mock('../image/auth.png', () => 'auth.png');
 
-jest.mock("react-router-dom", () => {
-  const actual = jest.requireActual("react-router-dom");
-  return {
-    ...actual,
-    useNavigate: () => jest.fn(),
-    Link: ({ children, ...rest }) => <a {...rest}>{children}</a>,
-  };
-});
+jest.mock('../validation/regFormValidationSchema', () => ({
+  __esModule: true,
+  default: {
+    validate: (...args) => mockValidate(...args),
+  },
+}));
 
+jest.mock('../store/authSlice', () => ({
+  registerUser: jest.fn((payload) => ({ type: 'auth/registerUser', payload })),
+}));
 
-jest.mock("../store/authSlice", () => {
-  return {
-    __esModule: true,
-    registerUser: () => ({ type: "auth/registerUser" }),
-  };
-});
+jest.mock('react-redux', () => ({
+  useSelector: (selector) => selector({ auth: { status: 'idle', error: null } }),
+  useDispatch: () => mockDispatch,
+}));
 
-//test case 
-describe("Register component - password validation", () => {
-  test("shows password error when password is too short", async () => {
-    // Render Register page
-    render(<Register />);
+jest.mock('react-router-dom', () => ({
+  ...jest.requireActual('react-router-dom'),
+  useNavigate: () => mockNavigate,
+}));
 
-    // Fill form fields
-    fire.change(screen.getByPlaceholderText("Name"), {
-      target: { value: "Aya" },
+const renderComponent = () =>
+  render(
+    <MemoryRouter>
+      <Register />
+    </MemoryRouter>
+  );
+
+describe('Register component', () => {
+  beforeEach(() => {
+    jest.clearAllMocks();
+    mockDispatch.mockReturnValue({ unwrap: mockUnwrap });
+  });
+
+  it('shows password error when password is too short', async () => {
+    mockValidate.mockRejectedValueOnce({
+      inner: [{ path: 'password', message: 'Password must be at least 8 characters' }],
     });
 
-    fire.change(screen.getByPlaceholderText("Email"), {
-      target: { value: "aya@example.com" },
+    renderComponent();
+
+    fireEvent.change(screen.getByPlaceholderText(/enter your full name/i), {
+      target: { value: 'Aya' },
+    });
+    fireEvent.change(screen.getByPlaceholderText(/you@example.com/i), {
+      target: { value: 'aya@example.com' },
+    });
+    fireEvent.change(screen.getByPlaceholderText(/phone number/i), {
+      target: { value: '91234567' },
+    });
+    fireEvent.change(screen.getByPlaceholderText(/^password$/i), {
+      target: { value: 'Ab1@' },
+    });
+    fireEvent.change(screen.getByPlaceholderText(/confirm password/i), {
+      target: { value: 'Ab1@' },
     });
 
-    fire.change(screen.getByPlaceholderText("Password"), {
-      target: { value: "Ab1@" }, // short password
+    fireEvent.click(screen.getByRole('button', { name: /register/i }));
+
+    expect(
+      await screen.findByText(/password must be at least 8 characters/i)
+    ).toBeInTheDocument();
+  });
+
+  it('shows local error when passwords do not match', async () => {
+    renderComponent();
+
+    fireEvent.change(screen.getByPlaceholderText(/^password$/i), {
+      target: { value: 'Password123!' },
+    });
+    fireEvent.change(screen.getByPlaceholderText(/confirm password/i), {
+      target: { value: 'Different123!' },
     });
 
-    fire.change(screen.getByPlaceholderText("Confirm Password"), {
-      target: { value: "Ab1@" },
+    fireEvent.click(screen.getByRole('button', { name: /register/i }));
+
+    expect(await screen.findByText(/passwords do not match/i)).toBeInTheDocument();
+  });
+
+  it('dispatches register and navigates on valid form', async () => {
+    const { registerUser } = require('../store/authSlice');
+
+    mockValidate.mockResolvedValueOnce();
+    mockUnwrap.mockResolvedValueOnce({});
+
+    renderComponent();
+
+    fireEvent.change(screen.getByPlaceholderText(/enter your full name/i), {
+      target: { value: 'Aya Alhabsi' },
+    });
+    fireEvent.change(screen.getByPlaceholderText(/you@example.com/i), {
+      target: { value: 'aya@example.com' },
+    });
+    fireEvent.change(screen.getByPlaceholderText(/phone number/i), {
+      target: { value: '91234567' },
+    });
+    fireEvent.change(screen.getByPlaceholderText(/^password$/i), {
+      target: { value: 'Password123!' },
+    });
+    fireEvent.change(screen.getByPlaceholderText(/confirm password/i), {
+      target: { value: 'Password123!' },
     });
 
-    // Click Create Account button
-    const submitButton = screen.getByRole("button", {
-      name: /create account/i,
+    fireEvent.click(screen.getAllByText(/funder/i)[0]);
+    fireEvent.click(screen.getByRole('button', { name: /register/i }));
+
+    await waitFor(() => {
+      expect(mockValidate).toHaveBeenCalledWith(
+        {
+          name: 'Aya Alhabsi',
+          email: 'aya@example.com',
+          phone: '91234567',
+          password: 'Password123!',
+          confirmPassword: 'Password123!',
+        },
+        { abortEarly: false }
+      );
     });
 
-    fire.click(submitButton);
+    await waitFor(() => {
+      expect(registerUser).toHaveBeenCalledWith(
+        expect.objectContaining({
+          name: 'Aya Alhabsi',
+          email: 'aya@example.com',
+          password: 'Password123!',
+          role: 'funder',
+          phone: '91234567',
+        })
+      );
+    });
 
-    // Check error message
-    const errorMessage = await screen.findByText(
-      "Password must be at least 8 characters"
-    );
+    await waitFor(() => {
+      expect(mockDispatch).toHaveBeenCalled();
+    });
 
-    expect(errorMessage).toBeInTheDocument();
+    await waitFor(() => {
+      expect(mockNavigate).toHaveBeenCalledWith('/login');
+    });
   });
 });
