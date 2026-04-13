@@ -69,7 +69,7 @@ function ResetPass() {
 
     setLoading(true);
     try {
-      const res = await axios.post(`${API_URL}/auth/change-password`, {
+      const res = await axios.post(${API_URL}/auth/change-password, {
         email: user.email,
         currentPassword,
         newPassword,
@@ -183,7 +183,7 @@ export function ResetPasswordModal({ isOpen, toggle }) {
 
     setLoading(true);
     try {
-      const res = await axios.post(`${API_URL}/auth/change-password`, {
+      const res = await axios.post(${API_URL}/auth/change-password, {
         email: user.email,
         currentPassword,
         newPassword,
